@@ -6,29 +6,41 @@
 <ul>
     @foreach (var todo in todos)
     {
-        <li>
-            <input type="checkbox" @bind="todo.IsDone" />
-            <input @bind="todo.Title" />
-        </li>
+    <li>
+        <input type="checkbox" @bind="todo.IsDone" />
+        <input @bind="todo.Title" />
+    </li>
     }
 </ul>
-<input placeholder="Something todo" @bind="newTodo" />
-<button @onclick="AddTodo">Add todo</button>
+
+<EditForm Model="@newTodoItem" OnValidSubmit="AddTodo" OnInvalidSubmit="ShowInvalidMessage">
+    <DataAnnotationsValidator />
+
+    <InputText id="name" @bind-Value="newTodoItem.Title" />
+    <ValidationSummary />
+    <button type="submit">Add todo</button>
+</EditForm>
 
 @code {
     private IList<TodoItem> todos;
-    private string newTodo;
+    private TodoItem newTodoItem = new TodoItem();
     protected override async Task OnInitializedAsync()
-    { 
+    {
         todos = await service.GetAll();
     }
 
     private void AddTodo()
     {
-        if (!string.IsNullOrWhiteSpace(newTodo))
+        if (!string.IsNullOrWhiteSpace(newTodoItem.Title))
         {
-            todos.Add(new TodoItem { Title = newTodo });
-            newTodo = string.Empty;
+            todos.Add(new TodoItem()
+                {
+                    Title = newTodoItem.Title
+                });
         }
+    }
+
+    private void ShowInvalidMessage()
+    {
     }
 }
